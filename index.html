@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Què toca tirar avui?</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .images img {
+            max-width: 100px;
+            border-radius: 8px;
+        }
+        .bin {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bin img {
+            max-width: 100px;
+        }
+        .date-picker {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Què toca tirar avui?</h1>
+        <p>Avui és <span id="date"></span></p>
+        <div id="message"></div>
+        <div class="date-picker">
+            <label for="day-select">Tria un dia:</label>
+            <input type="date" id="day-select" name="day-select">
+        </div>
+    </div>
+
+    <script>
+        function getGarbageCollectionMessage(date) {
+            const today = date ? new Date(date) : new Date();
+            const dayOfWeek = today.getDay();
+            const referenceDate = new Date(2025, 2, 23); // 23 de març de 2025
+            const daysSinceReference = Math.floor((today - referenceDate) / (1000 * 60 * 60 * 24));
+            let message = "";
+
+            if ([2, 4, 6].includes(dayOfWeek)) { // Dimarts, Dijous, Dissabte
+                message = "<p>No hi ha recollida d'escombraries</p>";
+            } else if (dayOfWeek === 1 || dayOfWeek === 5) { // Dilluns o Divendres
+                message = `
+                    <p>Hi ha recollida d´orgànic i envasos.</p>
+                    <div class="bin">
+                        <img src="cubellmarro.png" alt="Cubell Marró">
+                        <img src="organic.png" alt="Orgànic">
+                    </div>
+                    <div class="bin">
+                        <img src="cubellblanc.png" alt="Cubell Blanc">
+                        <img src="envasos.png" alt="Envasos">
+                    </div>
+                `;
+                if (dayOfWeek === 1) { // Dilluns
+                    message += `
+                        <p>I a més a més recullen les restes vegetals.</p>
+                        <div class="bin">
+                            <img src="sacderafia.png" alt="Sac de Ràfia">
+                            <img src="restesvegetals.png" alt="Restes Vegetals">
+                        </div>
+                    `;
+                }
+            } else if (dayOfWeek === 3) { // Dimecres
+                message = `
+                    <p>Hi ha recollida d´orgànic i paper/cartró.</p>
+                    <div class="bin">
+                        <img src="cubellmarro.png" alt="Cubell Marró">
+                        <img src="organic.png" alt="Orgànic">
+                    </div>
+                    <div class="bin">
+                        <img src="cubellblanc.png" alt="Cubell Blanc">
+                        <img src="paper.png" alt="Paper">
+                    </div>
+                `;
+            } else if (dayOfWeek === 0) { // Diumenge
+                if (Math.floor(daysSinceReference / 7) % 2 === 0) {
+                    message = `
+                        <p>Hi ha recollida de vidre i resta.</p>
+                        <div class="bin">
+                            <img src="cubellmarro.png" alt="Cubell Marró">
+                            <img src="vidre.png" alt="Vidre">
+                        </div>
+                        <div class="bin">
+                            <img src="cubellblanc.png" alt="Cubell Blanc">
+                            <img src="resta.png" alt="Resta">
+                        </div>
+                    `;
+                } else {
+                    message = "<p>Avui no passen</p>";
+                }
+            } else {
+                message = "<p>Avui no recullen escombraries</p>";
+            }
+
+            return message;
+        }
+
+        function updateMessage() {
+            const selectedDate = document.getElementById("day-select").value;
+            document.getElementById("date").innerText = new Date(selectedDate).toLocaleDateString("ca-CA", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById("message").innerHTML = getGarbageCollectionMessage(selectedDate);
+        }
+
+        document.getElementById("day-select").addEventListener("change", updateMessage);
+
+        document.getElementById("date").innerText = new Date().toLocaleDateString("ca-CA", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById("message").innerHTML = getGarbageCollectionMessage();
+    </script>
+</body>
+</html>
