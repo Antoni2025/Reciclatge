@@ -48,24 +48,6 @@
             margin-bottom: 20px;
         }
 
-        /* BOTÓ TORNAR A AVUI */
-        #reset-btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 14px;
-            background: #66bb6a;
-            color: white;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            font-size: 0.9em;
-        }
-
-        #reset-btn:hover {
-            background: #57a85c;
-        }
-
         .date-picker {
             margin-top: 25px;
             padding-top: 15px;
@@ -110,46 +92,50 @@
             transform: translateX(6px);
         }
 
-        /* TAULA DE RESUM */
+        /* RESUM EN TARGETES */
         #summary {
             margin-top: 35px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: #fafafa;
+        #summary h2 {
+            margin-bottom: 15px;
+            color: #2e7d32;
+        }
+
+        #cards {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background: #f5f5f5;
+            padding: 15px;
             border-radius: 12px;
-            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        th {
-            background: #dcedc8;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #33691e;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .icon {
+        .card img {
             width: 50px;
             height: auto;
         }
 
-        /* TARGETES EN MÒBIL */
-        @media (max-width: 480px) {
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95em;
+        }
 
+        .card-title {
+            font-weight: 600;
+            color: #33691e;
+            margin-bottom: 2px;
+        }
+
+        @media (max-width: 480px) {
             .container {
                 padding: 18px;
             }
@@ -170,40 +156,12 @@
                 font-size: 2em;
             }
 
-            /* TAULA → TARGETES */
-            table {
-                display: none;
-            }
-
-            #summary {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .card {
-                background: #f5f5f5;
-                padding: 15px;
-                border-radius: 12px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-
             .card img {
                 width: 40px;
             }
 
             .card-info {
-                display: flex;
-                flex-direction: column;
                 font-size: 0.9em;
-            }
-
-            .card-title {
-                font-weight: 600;
-                color: #33691e;
             }
         }
 
@@ -218,8 +176,6 @@
         <h1>Què toca tirar avui?</h1>
         <p>Avui és <span id="date"></span></p>
         <div id="message"></div>
-
-        <button id="reset-btn">Torna a avui</button>
 
         <div class="date-picker">
             <label for="day-select">Tria un dia:</label><br>
@@ -290,37 +246,7 @@
                 { name: "Restes vegetals", icon: "restesvegetals.png", next: getNextMontilivi(today) }
             ];
 
-            /* TAULA PER A ORDINADOR */
-            let html = `
-                <h2>Pròximes recollides</h2>
-                <table>
-                    <tr>
-                        <th>Icona</th>
-                        <th>Fracció</th>
-                        <th>Dia</th>
-                        <th>Proper dia</th>
-                        <th>Falten</th>
-                    </tr>
-            `;
-
-            fractions.forEach(f => {
-                if (!f.next) return;
-                const days = daysBetween(today, f.next);
-                html += `
-                    <tr>
-                        <td><img class="icon" src="${f.icon}"></td>
-                        <td>${f.name}</td>
-                        <td>${f.next.toLocaleDateString("ca-CA", { weekday: 'long' })}</td>
-                        <td>${f.next.toLocaleDateString("ca-CA")}</td>
-                        <td>${days} dies</td>
-                    </tr>
-                `;
-            });
-
-            html += "</table>";
-
-            /* TARGETES PER A MÒBIL */
-            html += `<div id="cards">`;
+            let html = `<h2>Pròximes recollides</h2><div id="cards">`;
 
             fractions.forEach(f => {
                 if (!f.next) return;
@@ -443,13 +369,6 @@
         }
 
         document.getElementById("day-select").addEventListener("change", updateMessage);
-
-        document.getElementById("reset-btn").addEventListener("click", () => {
-            document.getElementById("day-select").value = "";
-            document.getElementById("date").innerText = formatDate(new Date());
-            document.getElementById("message").innerHTML = getGarbageCollectionMessage();
-            updateSummary();
-        });
 
         document.getElementById("date").innerText = formatDate(new Date());
         document.getElementById("message").innerHTML = getGarbageCollectionMessage();
