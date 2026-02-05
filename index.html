@@ -3,48 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Què toca tirar avui?</title>
+    <title>Què toca tirar avui a Montilivi?</title>
+
+    <!-- Tipografia moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 30px;
         }
-        h1 {
-            color: #4CAF50;
-        }
-        p {
-            font-size: 1.2em;
-        }
+
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            animation: fadeIn 0.4s ease-out;
         }
-        .images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+
+        h1 {
+            color: #2e7d32;
+            font-size: 2.3em;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
-        .images img {
-            max-width: 100px;
-            border-radius: 8px;
+
+        #date {
+            font-weight: 600;
+            color: #1b5e20;
         }
+
+        #message p {
+            background: #e8f5e9;
+            padding: 14px;
+            border-radius: 12px;
+            border-left: 6px solid #66bb6a;
+            font-size: 1.15em;
+            margin-bottom: 20px;
+        }
+
+        .date-picker {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        label {
+            font-weight: 600;
+            color: #33691e;
+        }
+
+        input[type="date"] {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #bbb;
+            font-size: 1em;
+            margin-top: 8px;
+        }
+
+        /* TAULA DE RESUM */
+        #summary {
+            margin-top: 35px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fafafa;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #dcedc8;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #33691e;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .icon {
+            width: 50px;
+            height: auto;
+        }
+
+        /* MISSATGE DEL DIA — ICONES + FLETXA */
         .bin {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 20px; /* separació horitzontal */
+            margin-bottom: 35px; /* separació vertical entre línies */
         }
+
         .bin img {
-            max-width: 100px;
+            width: 80px;
+            height: auto;
         }
-        .date-picker {
-            margin-top: 20px;
+
+        .arrow {
+            font-size: 2.4em;
+            font-weight: bold;
+            color: #33691e;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -53,88 +135,209 @@
         <h1>Què toca tirar avui?</h1>
         <p>Avui és <span id="date"></span></p>
         <div id="message"></div>
+
         <div class="date-picker">
-            <label for="day-select">Tria un dia:</label>
+            <label for="day-select">Tria un dia:</label><br>
             <input type="date" id="day-select" name="day-select">
         </div>
+
+        <div id="summary"></div>
     </div>
 
     <script>
+        /* DATES MONTILIVI 2026 */
+        const montiliviDates = [
+            "2026-01-13","2026-02-10","2026-03-10","2026-03-24","2026-04-07",
+            "2026-04-21","2026-05-05","2026-05-19","2026-06-02","2026-06-09",
+            "2026-06-16","2026-06-30","2026-07-14","2026-07-28","2026-08-11",
+            "2026-08-25","2026-09-08","2026-09-22","2026-10-06","2026-10-20",
+            "2026-11-17"
+        ];
+
+        function getNextWeekday(startDate, weekdays) {
+            const date = new Date(startDate);
+            while (!weekdays.includes(date.getDay())) {
+                date.setDate(date.getDate() + 1);
+            }
+            return date;
+        }
+
+        function getNextMontilivi(startDate) {
+            const iso = d => d.toISOString().split("T")[0];
+            const startISO = iso(startDate);
+            for (const d of montiliviDates) {
+                if (d >= startISO) return new Date(d);
+            }
+            return null;
+        }
+
+        function getNextQuinzenal(startDate) {
+            const ref = new Date(2025, 2, 23);
+            const date = new Date(startDate);
+            while (true) {
+                if (date.getDay() === 0) {
+                    const diff = Math.floor((date - ref) / (1000*60*60*24));
+                    if (Math.floor(diff / 7) % 2 === 0) return date;
+                }
+                date.setDate(date.getDate() + 1);
+            }
+        }
+
+        function formatDate(d) {
+            return d.toLocaleDateString("ca-CA", {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+
+        function daysBetween(a, b) {
+            return Math.ceil((b - a) / (1000*60*60*24));
+        }
+
+        function updateSummary() {
+            const today = new Date();
+
+            const fractions = [
+                { name: "Orgànic", icon: "organic.png", next: getNextWeekday(today, [1,3,5]) },
+                { name: "Envasos", icon: "envasos.png", next: getNextWeekday(today, [1,5]) },
+                { name: "Paper / Cartró", icon: "paper.png", next: getNextWeekday(today, [3]) },
+                { name: "Vidre", icon: "vidre.png", next: getNextQuinzenal(today) },
+                { name: "Resta", icon: "resta.png", next: getNextQuinzenal(today) },
+                { name: "Restes vegetals", icon: "restesvegetals.png", next: getNextMontilivi(today) }
+            ];
+
+            let html = `
+                <h2>Pròximes recollides</h2>
+                <table>
+                    <tr>
+                        <th>Icona</th>
+                        <th>Fracció</th>
+                        <th>Dia</th>
+                        <th>Proper dia</th>
+                        <th>Falten</th>
+                    </tr>
+            `;
+
+            fractions.forEach(f => {
+                if (!f.next) return;
+                const days = daysBetween(today, f.next);
+                html += `
+                    <tr>
+                        <td><img class="icon" src="${f.icon}"></td>
+                        <td>${f.name}</td>
+                        <td>${f.next.toLocaleDateString("ca-CA", { weekday: 'long' })}</td>
+                        <td>${f.next.toLocaleDateString("ca-CA")}</td>
+                        <td>${days} dies</td>
+                    </tr>
+                `;
+            });
+
+            html += "</table>";
+            document.getElementById("summary").innerHTML = html;
+        }
+
+        /* MISSATGE DEL DIA */
         function getGarbageCollectionMessage(date) {
             const today = date ? new Date(date) : new Date();
+            const isoDate = today.toISOString().split("T")[0];
             const dayOfWeek = today.getDay();
-            const referenceDate = new Date(2025, 2, 23); // 23 de març de 2025
-            const daysSinceReference = Math.floor((today - referenceDate) / (1000 * 60 * 60 * 24));
-            let message = "";
 
-            if ([2, 4, 6].includes(dayOfWeek)) { // Dimarts, Dijous, Dissabte
-                message = "<p>No hi ha recollida d'escombraries</p>";
-            } else if (dayOfWeek === 1 || dayOfWeek === 5) { // Dilluns o Divendres
-                message = `
-                    <p>Hi ha recollida d´orgànic i envasos.</p>
-                    <div class="bin">
-                        <img src="cubellmarro.png" alt="Cubell Marró">
-                        <img src="organic.png" alt="Orgànic">
-                    </div>
-                    <div class="bin">
-                        <img src="cubellblanc.png" alt="Cubell Blanc">
-                        <img src="envasos.png" alt="Envasos">
-                    </div>
-                `;
-                if (dayOfWeek === 1) { // Dilluns
-                    message += `
-                        <p>I a més a més recullen les restes vegetals.</p>
+            // DIMARTS — RESTES VEGETALS
+            if (dayOfWeek === 2) {
+                if (montiliviDates.includes(isoDate)) {
+                    return `
+                        <p>Avui recullen les restes vegetals.</p>
                         <div class="bin">
-                            <img src="sacderafia.png" alt="Sac de Ràfia">
-                            <img src="restesvegetals.png" alt="Restes Vegetals">
+                            <img src="restesvegetals.png">
+                            <span class="arrow">→</span>
+                            <img src="cub240.png">
                         </div>
                     `;
-                }
-            } else if (dayOfWeek === 3) { // Dimecres
-                message = `
-                    <p>Hi ha recollida d´orgànic i paper/cartró.</p>
-                    <div class="bin">
-                        <img src="cubellmarro.png" alt="Cubell Marró">
-                        <img src="organic.png" alt="Orgànic">
-                    </div>
-                    <div class="bin">
-                        <img src="cubellblanc.png" alt="Cubell Blanc">
-                        <img src="paper.png" alt="Paper">
-                    </div>
-                `;
-            } else if (dayOfWeek === 0) { // Diumenge
-                if (Math.floor(daysSinceReference / 7) % 2 === 0) {
-                    message = `
-                        <p>Hi ha recollida de vidre i resta.</p>
-                        <div class="bin">
-                            <img src="cubellmarro.png" alt="Cubell Marró">
-                            <img src="vidre.png" alt="Vidre">
-                        </div>
-                        <div class="bin">
-                            <img src="cubellblanc.png" alt="Cubell Blanc">
-                            <img src="resta.png" alt="Resta">
-                        </div>
-                    `;
-                } else {
-                    message = "<p>Avui no passen</p>";
-                }
-            } else {
-                message = "<p>Avui no recullen escombraries</p>";
+                } else return "<p>Avui no passen.</p>";
             }
 
-            return message;
+            // DIJOUS I DISSABTE
+            if ([4, 6].includes(dayOfWeek)) return "<p>No hi ha recollida d'escombraries</p>";
+
+            // DILLUNS I DIVENDRES — ORGÀNIC + ENVASOS
+            if (dayOfWeek === 1 || dayOfWeek === 5) {
+                return `
+                    <p>Hi ha recollida d´orgànic i envasos.</p>
+
+                    <div class="bin">
+                        <img src="organic.png">
+                        <span class="arrow">→</span>
+                        <img src="cubellmarro.png">
+                    </div>
+
+                    <div class="bin">
+                        <img src="envasos.png">
+                        <span class="arrow">→</span>
+                        <img src="cubellblanc.png">
+                    </div>
+                `;
+            }
+
+            // DIMECRES — ORGÀNIC + PAPER
+            if (dayOfWeek === 3) {
+                return `
+                    <p>Hi ha recollida d´orgànic i paper/cartró.</p>
+
+                    <div class="bin">
+                        <img src="organic.png">
+                        <span class="arrow">→</span>
+                        <img src="cubellmarro.png">
+                    </div>
+
+                    <div class="bin">
+                        <img src="paper.png">
+                        <span class="arrow">→</span>
+                        <img src="cubellblanc.png">
+                    </div>
+                `;
+            }
+
+            // DIUMENGE — VIDRE + RESTA (QUINZENAL)
+            if (dayOfWeek === 0) {
+                const ref = new Date(2025, 2, 23);
+                const diff = Math.floor((today - ref) / (1000*60*60*24));
+                if (Math.floor(diff / 7) % 2 === 0) {
+                    return `
+                        <p>Hi ha recollida de vidre i resta.</p>
+
+                        <div class="bin">
+                            <img src="vidre.png">
+                            <span class="arrow">→</span>
+                            <img src="cubellmarro.png">
+                        </div>
+
+                        <div class="bin">
+                            <img src="resta.png">
+                            <span class="arrow">→</span>
+                            <img src="cubellblanc.png">
+                        </div>
+                    `;
+                } else return "<p>Avui no passen</p>";
+            }
+
+            return "<p>Avui no recullen escombraries</p>";
         }
 
         function updateMessage() {
             const selectedDate = document.getElementById("day-select").value;
-            document.getElementById("date").innerText = new Date(selectedDate).toLocaleDateString("ca-CA", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById("message").innerHTML = getGarbageCollectionMessage(selectedDate);
+
+            if (selectedDate) {
+                document.getElementById("date").innerText = formatDate(new Date(selectedDate));
+                document.getElementById("message").innerHTML = getGarbageCollectionMessage(selectedDate);
+            }
+
+            updateSummary(); // sempre des d’avui
         }
 
         document.getElementById("day-select").addEventListener("change", updateMessage);
 
-        document.getElementById("date").innerText = new Date().toLocaleDateString("ca-CA", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById("date").innerText = formatDate(new Date());
         document.getElementById("message").innerHTML = getGarbageCollectionMessage();
+        updateSummary();
     </script>
 </body>
 </html>
