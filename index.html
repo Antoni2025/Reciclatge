@@ -173,7 +173,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Què toca tirar avui?</h1>
+        <h1>Què toca tirar avui a Montilivi?</h1>
         <p>Avui és <span id="date"></span></p>
         <div id="message"></div>
 
@@ -243,10 +243,11 @@
                 { name: "Paper / Cartró", icon: "paper.png", next: getNextWeekday(today, [3]) },
                 { name: "Vidre", icon: "vidre.png", next: getNextQuinzenal(today) },
                 { name: "Resta", icon: "resta.png", next: getNextQuinzenal(today) },
-                { name: "Restes vegetals", icon: "restesvegetals.png", next: getNextMontilivi(today) }
+                { name: "Restes vegetals", icon: "restesvegetals.png", next: getNextMontilivi(today) },
+				{ name: "Tota aquesta panda d'ineptes ", icon: "lluc.png", next: new Date("2027-05-23") }
             ];
 
-            let html = `<h2>Pròximes recollides</h2><div id="cards">`;
+            let html = `<h2>Properes recollides</h2><div id="cards">`;
 
             fractions.forEach(f => {
                 if (!f.next) return;
